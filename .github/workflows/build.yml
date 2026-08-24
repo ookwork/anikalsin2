@@ -34,6 +34,13 @@ jobs:
       - name: Copy static/public assets into standalone bundle
         run: node scripts/copy-standalone-assets.js
 
+      - name: Debug - list standalone output
+        run: |
+          echo "--- .next/standalone top level ---"
+          ls -la .next/standalone
+          echo "--- .next/standalone/.next (if exists) ---"
+          ls -la .next/standalone/.next || echo "MISSING"
+
       - name: Upload standalone build artifact
         uses: actions/upload-artifact@v4
         with:
