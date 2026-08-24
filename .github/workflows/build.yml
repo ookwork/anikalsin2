@@ -8,6 +8,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+    env:
+      DATABASE_URL: "file:./build-temp.db"
+      SESSION_SECRET: "build-time-placeholder-not-used-in-production-32chars"
+      NEXT_PUBLIC_SITE_URL: "https://anikalsin.com.tr"
     steps:
       - uses: actions/checkout@v4
 
@@ -20,6 +24,9 @@ jobs:
 
       - name: Generate Prisma Client
         run: npx prisma generate
+
+      - name: Create build-time database schema
+        run: npx prisma migrate deploy
 
       - name: Build (webpack, matches cPanel target)
         run: npm run build:webpack
