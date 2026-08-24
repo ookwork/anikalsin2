@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #faf3ea;
+  --color-ivory: #fffdf9;
+  --color-rose: #c98a9e;
+  --color-rose-light: #e9c9d3;
+  --color-rose-pale: #f3dde4;
+  --color-burgundy: #5c2a3a;
+  --color-burgundy-dark: #401d29;
+  --color-gold: #c6a15b;
+  --color-gold-light: #e4ce9c;
+  --color-charcoal: #2e2620;
+  /* Bordo/marka rengi zeminler üzerine her zaman açık kalması gereken metin rengi.
+     bg-ivory kart yüzeyleri koyu temada karardığı için text-ivory'den ayrı tutulur. */
+  --color-on-brand: #fffdf9;
+
+  --font-heading: var(--font-playfair), ui-serif, Georgia, serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Siteye eklenen temalar. Aktif tema src/app/layout.tsx tarafından <html data-theme="..."> olarak
+   yazılır (yönetim panelinden "Görünüm" bölümünde seçilir). Admin paneli her zaman "classic" temasına
+   sabitlenir (src/app/admin/layout.tsx), bu yüzden burada tanımlı isimlerden bağımsız çalışmalıdır. */
+[data-theme="classic"] {
+  --color-cream: #faf3ea;
+  --color-ivory: #fffdf9;
+  --color-rose: #c98a9e;
+  --color-rose-light: #e9c9d3;
+  --color-rose-pale: #f3dde4;
+  --color-burgundy: #5c2a3a;
+  --color-burgundy-dark: #401d29;
+  --color-gold: #c6a15b;
+  --color-gold-light: #e4ce9c;
+  --color-charcoal: #2e2620;
+}
+
+[data-theme="modern"] {
+  --color-cream: #f5f6f7;
+  --color-ivory: #ffffff;
+  --color-rose: #ff7a59;
+  --color-rose-light: #ffd0c2;
+  --color-rose-pale: #fdece6;
+  --color-burgundy: #20242b;
+  --color-burgundy-dark: #0f1115;
+  --color-gold: #0e9488;
+  --color-gold-light: #a6e8e0;
+  --color-charcoal: #1f2328;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-theme="pastel"] {
+  --color-cream: #fdf5f7;
+  --color-ivory: #ffffff;
+  --color-rose: #d88fa6;
+  --color-rose-light: #f0c9d6;
+  --color-rose-pale: #faeaf0;
+  --color-burgundy: #8c5a72;
+  --color-burgundy-dark: #6b3f57;
+  --color-gold: #d4a373;
+  --color-gold-light: #f0d9c0;
+  --color-charcoal: #4a3b42;
+}
+
+[data-theme="dark"] {
+  --color-cream: #181215;
+  --color-ivory: #241b20;
+  --color-rose: #d9a5b8;
+  --color-rose-light: #e9c9d3;
+  --color-rose-pale: #e3bcc8;
+  --color-burgundy: #8c2f45;
+  --color-burgundy-dark: #5c1f2e;
+  --color-gold: #e8c873;
+  --color-gold-light: #f5e3b3;
+  --color-charcoal: #f2e8ec;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-charcoal);
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-heading {
+  font-family: var(--font-heading);
+}
+
+::selection {
+  background: var(--color-rose-light);
+  color: var(--color-burgundy-dark);
+}
+
+.rdp-root {
+  --rdp-accent-color: var(--color-burgundy) !important;
+  --rdp-today-color: var(--color-burgundy) !important;
+}
+
+@keyframes waveform-bounce {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.waveform-bar {
+  animation: waveform-bounce 1s ease-in-out infinite;
+  transform-origin: center;
+}
+
+/* Blog gövde içeriği zengin metin editöründen gelen HTML'i biçimlendirir (src/components/admin/RichTextEditor.tsx). */
+.blog-content p {
+  margin-bottom: 1em;
+}
+.blog-content h2 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-family: var(--font-heading);
+  font-size: 1.5em;
+  font-weight: 600;
+  color: var(--color-burgundy-dark);
+}
+.blog-content h3 {
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+  font-family: var(--font-heading);
+  font-size: 1.25em;
+  font-weight: 600;
+  color: var(--color-burgundy-dark);
+}
+.blog-content h4 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  color: var(--color-burgundy-dark);
+}
+.blog-content ul,
+.blog-content ol {
+  margin: 1em 0;
+  padding-left: 1.5em;
+}
+.blog-content ul {
+  list-style: disc;
+}
+.blog-content ol {
+  list-style: decimal;
+}
+.blog-content blockquote {
+  margin: 1em 0;
+  border-left: 3px solid var(--color-gold);
+  padding-left: 1em;
+  color: color-mix(in srgb, var(--color-charcoal) 70%, transparent);
+  font-style: italic;
+}
+.blog-content a {
+  color: var(--color-burgundy);
+  text-decoration: underline;
+}
+.blog-content img,
+.blog-content video {
+  margin: 1.25em 0;
+  max-width: 100%;
+  border-radius: 0.75rem;
+}
+.blog-content code {
+  border-radius: 0.25rem;
+  background: var(--color-rose-pale);
+  padding: 0.15em 0.4em;
+  font-size: 0.9em;
+}

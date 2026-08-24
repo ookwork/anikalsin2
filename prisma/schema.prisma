@@ -1,0 +1,266 @@
+// Anikalsin.com.tr - anı kayıt telefonu kiralama sitesi veritabanı şeması
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+}
+
+model ProductModel {
+  id        String    @id @default(cuid())
+  slug      String    @unique
+  name      String
+  order     Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Product {
+  id               String         @id @default(cuid())
+  slug             String         @unique
+  name             String
+  shortDescription String?
+  description      String
+  price            Int
+  installmentInfo  String?
+  modelId          String?
+  model            ProductModel?  @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  colorName        String?
+  colorHex         String?
+  stockCount       Int            @default(1)
+  featuredImageUrl String?
+  videoUrl         String?
+  metaTitle        String?
+  metaDescription  String?
+  isActive         Boolean        @default(true)
+  order            Int            @default(0)
+  images           ProductImage[]
+  reservations     Reservation[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([modelId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  altText   String?
+  order     Int     @default(0)
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+  EXPIRED
+}
+
+model Reservation {
+  id                     String            @id @default(cuid())
+  productId              String
+  product                Product           @relation(fields: [productId], references: [id])
+  customerName           String
+  customerPhone          String
+  customerEmail          String?
+  eventCity              String?
+  deliveryAddress        String?
+  rentalStart            DateTime
+  rentalEnd              DateTime
+  quantity               Int               @default(1)
+  status                 ReservationStatus @default(PENDING)
+  note                   String?
+  adminNote              String?
+  frameId                String?
+  frame                  Frame?            @relation(fields: [frameId], references: [id])
+  framePriceAtBooking    Int?
+  discountCodeId         String?
+  discountCode           DiscountCode?     @relation(fields: [discountCodeId], references: [id])
+  discountAmount         Int?
+  shippingCarrier        String?
+  shippingTrackingNumber String?
+  shippingDate           DateTime?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  payment Payment?
+  addOns  ReservationAddOn[]
+
+  @@index([productId, rentalStart, rentalEnd])
+  @@index([frameId])
+  @@index([discountCodeId])
+}
+
+model Frame {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  price        Int           @default(0)
+  isPremium    Boolean       @default(false)
+  imageUrl     String?
+  isActive     Boolean       @default(true)
+  order        Int           @default(0)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+model DiscountCode {
+  id           String        @id @default(cuid())
+  code         String        @unique
+  type         DiscountType
+  value        Int
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  reservations Reservation[]
+}
+
+enum PaymentMethod {
+  EFT_HAVALE
+  CREDIT_CARD_DEMO
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  EXPIRED
+  FAILED
+}
+
+model Payment {
+  id            String         @id @default(cuid())
+  reservationId String         @unique
+  reservation   Reservation    @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  referenceCode String         @unique
+  method        PaymentMethod?
+  status        PaymentStatus  @default(PENDING)
+  amount        Int
+  expiresAt     DateTime
+  paidAt        DateTime?
+  paidVia       String?
+  adminNote     String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([status, expiresAt])
+}
+
+enum AddOnCategory {
+  ACCESSORY
+  STAFF_SERVICE
+}
+
+model AddOn {
+  id                String             @id @default(cuid())
+  name              String
+  description       String?
+  price             Int
+  category          AddOnCategory
+  cityRestriction   String?
+  isActive          Boolean            @default(true)
+  order             Int                @default(0)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  reservationAddOns ReservationAddOn[]
+}
+
+model ReservationAddOn {
+  id             String      @id @default(cuid())
+  reservationId  String
+  reservation    Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  addOnId        String
+  addOn          AddOn       @relation(fields: [addOnId], references: [id])
+  quantity       Int         @default(1)
+  priceAtBooking Int
+  createdAt      DateTime    @default(now())
+
+  @@index([reservationId])
+  @@index([addOnId])
+}
+
+model BlogPost {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  excerpt         String?
+  content         String
+  coverImage      String?
+  isPublished     Boolean   @default(false)
+  publishedAt     DateTime?
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("text")
+  updatedAt DateTime @updatedAt
+}
+
+model Testimonial {
+  id             String   @id @default(cuid())
+  authorName     String
+  authorLocation String?
+  content        String
+  rating         Int?     @default(5)
+  avatarUrl      String?
+  isActive       Boolean  @default(true)
+  order          Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model AudioSample {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  audioUrl    String
+  isActive    Boolean  @default(true)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PageView {
+  id         String   @id @default(cuid())
+  path       String
+  visitorId  String
+  durationMs Int?
+  createdAt  DateTime @default(now())
+
+  @@index([path])
+  @@index([createdAt])
+  @@index([visitorId])
+}
+
+model Faq {
+  id       String  @id @default(cuid())
+  question String
+  answer   String
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+}
