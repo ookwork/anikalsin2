@@ -30,7 +30,8 @@ jobs:
             apt-get update && apt-get install -y curl python3 make g++ ca-certificates &&
             curl -fsSL https://nodejs.org/dist/v20.20.2/node-v20.20.2-linux-x64.tar.xz -o /tmp/node.tar.xz &&
             tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 &&
-            CXXFLAGS='-std=gnu++2a' npm rebuild better-sqlite3 --build-from-source
+            sed -i 's/c++20/c++2a/g' node_modules/better-sqlite3/binding.gyp &&
+            npm rebuild better-sqlite3 --build-from-source
           "
 
       - name: Generate Prisma Client
