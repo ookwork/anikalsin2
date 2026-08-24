@@ -24,8 +24,9 @@ jobs:
 
       - name: Rebuild better-sqlite3 against an old glibc (for old CentOS/CloudLinux hosts)
         run: |
-          docker run --rm -v "${{ github.workspace }}:/work" -w /work ubuntu:18.04 bash -c "
-            sed -i 's/archive.ubuntu.com/old-releases.ubuntu.com/g; s/security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list &&
+          docker run --rm -v "${{ github.workspace }}:/work" -w /work debian:10 bash -c "
+            sed -i 's|deb.debian.org|archive.debian.org|g; s|security.debian.org|archive.debian.org|g' /etc/apt/sources.list &&
+            echo 'Acquire::Check-Valid-Until \"false\";' > /etc/apt/apt.conf.d/99no-check-valid &&
             apt-get update && apt-get install -y curl python3 make g++ ca-certificates &&
             curl -fsSL https://nodejs.org/dist/v20.20.2/node-v20.20.2-linux-x64.tar.xz -o /tmp/node.tar.xz &&
             tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 &&
