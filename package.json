@@ -11,6 +11,7 @@
     "lint": "eslint",
     "db:seed": "tsx prisma/seed.ts",
     "migrate:deploy": "prisma migrate deploy",
+    "migrate:quiet": "node scripts/migrate-quiet.js",
     "diag": "node scripts/diag.js"
   },
   "prisma": {
