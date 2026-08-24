@@ -22,6 +22,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Rebuild better-sqlite3 against an old glibc (for old CentOS/CloudLinux hosts)
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/work" -w /work ubuntu:18.04 bash -c "
+            sed -i 's/archive.ubuntu.com/old-releases.ubuntu.com/g; s/security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list &&
+            apt-get update && apt-get install -y curl python3 make g++ ca-certificates &&
+            curl -fsSL https://nodejs.org/dist/v20.20.2/node-v20.20.2-linux-x64.tar.xz -o /tmp/node.tar.xz &&
+            tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 &&
+            npm rebuild better-sqlite3 --build-from-source
+          "
+
       - name: Generate Prisma Client
         run: npx prisma generate
 
