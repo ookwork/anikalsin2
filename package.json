@@ -12,7 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "migrate:deploy": "prisma migrate deploy",
     "migrate:quiet": "node scripts/migrate-quiet.js",
-    "diag": "node scripts/diag.js"
+    "diag": "node scripts/diag.js",
+    "diag:sharp": "node scripts/diag-sharp.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
