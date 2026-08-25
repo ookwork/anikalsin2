@@ -50,7 +50,7 @@ class LocalUploadStorage implements UploadStorage {
 
     await writeFile(filepath, optimized);
 
-    return { url: `/uploads/${filename}` };
+    return { url: `/api/uploads/${filename}` };
   }
 
   async saveVideo(file: File): Promise<{ url: string }> {
@@ -70,7 +70,7 @@ class LocalUploadStorage implements UploadStorage {
 
     await writeFile(filepath, buffer);
 
-    return { url: `/uploads/${filename}` };
+    return { url: `/api/uploads/${filename}` };
   }
 
   async saveAudio(file: File): Promise<{ url: string }> {
@@ -90,12 +90,17 @@ class LocalUploadStorage implements UploadStorage {
 
     await writeFile(filepath, buffer);
 
-    return { url: `/uploads/${filename}` };
+    return { url: `/api/uploads/${filename}` };
   }
 
   async delete(url: string): Promise<void> {
-    if (!url.startsWith("/uploads/")) return;
-    const filepath = path.join(process.cwd(), "public", url);
+    const filename = url.startsWith("/api/uploads/")
+      ? url.slice("/api/uploads/".length)
+      : url.startsWith("/uploads/")
+        ? url.slice("/uploads/".length)
+        : null;
+    if (!filename) return;
+    const filepath = path.join(UPLOAD_DIR, filename);
     try {
       await unlink(filepath);
     } catch {
