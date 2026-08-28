@@ -1,24 +1,18 @@
 import { z } from "zod";
 
-export const reservationSchema = z
-  .object({
-    productId: z.string().min(1, "Ürün seçimi zorunludur."),
-    customerName: z.string().min(2, "Ad soyad giriniz."),
-    customerPhone: z.string().min(10, "Geçerli bir telefon numarası giriniz."),
-    customerEmail: z.string().email("Geçerli bir e-posta giriniz.").optional().or(z.literal("")),
-    eventCity: z.string().min(2, "Etkinlik şehri giriniz.").optional().or(z.literal("")),
-    deliveryAddress: z.string().optional().or(z.literal("")),
-    rentalStart: z.coerce.date(),
-    rentalEnd: z.coerce.date(),
-    note: z.string().optional().or(z.literal("")),
-    frameId: z.string().optional().or(z.literal("")),
-    addOnIds: z.array(z.string()).optional().default([]),
-    discountCode: z.string().optional().or(z.literal("")),
-  })
-  .refine((data) => data.rentalEnd > data.rentalStart, {
-    message: "Bitiş tarihi başlangıç tarihinden sonra olmalıdır.",
-    path: ["rentalEnd"],
-  });
+export const reservationSchema = z.object({
+  productId: z.string().min(1, "Ürün seçimi zorunludur."),
+  customerName: z.string().min(2, "Ad soyad giriniz."),
+  customerPhone: z.string().min(10, "Geçerli bir telefon numarası giriniz."),
+  customerEmail: z.string().email("Geçerli bir e-posta giriniz.").optional().or(z.literal("")),
+  eventCity: z.string().min(2, "Etkinlik şehri giriniz.").optional().or(z.literal("")),
+  deliveryAddress: z.string().optional().or(z.literal("")),
+  eventDate: z.coerce.date(),
+  note: z.string().optional().or(z.literal("")),
+  frameId: z.string().optional().or(z.literal("")),
+  addOnIds: z.array(z.string()).optional().default([]),
+  discountCode: z.string().optional().or(z.literal("")),
+});
 
 export type ReservationInput = z.infer<typeof reservationSchema>;
 

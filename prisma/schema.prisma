@@ -80,6 +80,7 @@ model Reservation {
   customerEmail          String?
   eventCity              String?
   deliveryAddress        String?
+  eventDate              DateTime?
   rentalStart            DateTime
   rentalEnd              DateTime
   quantity               Int               @default(1)
@@ -178,11 +179,23 @@ model AddOn {
   price             Int
   category          AddOnCategory
   cityRestriction   String?
+  imageUrl          String?
   isActive          Boolean            @default(true)
   order             Int                @default(0)
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   reservationAddOns ReservationAddOn[]
+}
+
+model BlockedDate {
+  id        String   @id @default(cuid())
+  date      DateTime
+  productId String?
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([date])
+  @@index([productId])
 }
 
 model ReservationAddOn {

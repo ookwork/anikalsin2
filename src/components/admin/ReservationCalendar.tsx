@@ -11,6 +11,7 @@ interface ReservationItem {
   id: string;
   customerName: string;
   status: string;
+  eventDate: string | null;
   rentalStart: string;
   rentalEnd: string;
 }
@@ -95,7 +96,15 @@ export default function ReservationCalendar({
                 <p className="font-medium text-burgundy-dark">{r.customerName}</p>
                 <StatusBadge status={r.status} />
               </div>
-              <p className="mt-1 text-xs text-charcoal/60">{formatDateRange(r.rentalStart, r.rentalEnd)}</p>
+              <p className="mt-1 text-xs text-charcoal/60">
+                Etkinlik: {formatDate(r.eventDate ?? r.rentalStart)}
+                {r.status === "CONFIRMED" && (
+                  <span className="text-charcoal/40">
+                    {" "}
+                    · Kapalı aralık: {formatDateRange(r.rentalStart, new Date(new Date(r.rentalEnd).getTime() - 1))}
+                  </span>
+                )}
+              </p>
             </div>
           ))}
         </div>

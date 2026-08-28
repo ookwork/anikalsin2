@@ -2,11 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { DateRange } from "react-day-picker";
 import Image from "next/image";
 import Link from "next/link";
-import { Loader2, CalendarRange, Sparkles, CheckCircle2, Frame as FrameIcon, Tag, X, ShieldCheck } from "lucide-react";
+import { Loader2, CalendarRange, Sparkles, CheckCircle2, Frame as FrameIcon, Tag, X, ShieldCheck, ZoomIn } from "lucide-react";
 import AvailabilityCalendar from "@/components/booking/AvailabilityCalendar";
+import { Modal } from "@/components/ui/Modal";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import PaymentBadges from "@/components/payments/PaymentBadges";
@@ -38,7 +38,8 @@ export default function ReservationForm({
   frames,
   addOns,
 }: ReservationFormProps) {
-  const [range, setRange] = useState<DateRange | undefined>();
+  const [eventDate, setEventDate] = useState<Date | undefined>();
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<Set<string>>(new Set());
   const [frameId, setFrameId] = useState<string>("");
   const [couponInput, setCouponInput] = useState("");
@@ -118,14 +119,8 @@ export default function ReservationForm({
   const onSubmit = async (values: ReservationFormValues) => {
     setSubmitError(null);
 
-    if (!range?.from && !range?.to) {
-      setDateError("Lütfen teslimat ve iade tarihi aralığını seçin.");
-      return;
-    }
-    if (range?.from && !range?.to) {
-      setDateError(
-        "Bir iade tarihi seçmelisiniz. Takvimden teslimat tarihinden sonraki bir günü tıklayın."
-      );
+    if (!eventDate) {
+      setDateError("Lütfen etkinlik tarihinizi seçin.");
       return;
     }
     setDateError(null);
@@ -149,8 +144,7 @@ export default function ReservationForm({
           eventCity: values.eventCity,
           deliveryAddress: values.deliveryAddress,
           note: values.note,
-          rentalStart: range.from!.toISOString(),
-          rentalEnd: range.to!.toISOString(),
+          eventDate: eventDate.toISOString(),
           frameId,
           addOnIds: Array.from(selectedAddOnIds),
           discountCode: appliedCoupon?.code ?? "",
@@ -191,15 +185,18 @@ export default function ReservationForm({
   }
 
   return (
+    <>
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
         <p className="mb-2 flex items-center gap-2 text-sm font-medium text-burgundy-dark">
-          <CalendarRange size={16} /> Teslimat - İade Tarihi
+          <CalendarRange size={16} /> Etkinlik Tarihi
         </p>
-        <AvailabilityCalendar productId={productId} selected={range} onSelect={setRange} />
-        {range?.from && range?.to && (
+        <div className={dateError ? "rounded-2xl ring-2 ring-red-400" : ""}>
+          <AvailabilityCalendar productId={productId} selected={eventDate} onSelect={setEventDate} />
+        </div>
+        {eventDate && (
           <p className="mt-2 text-sm text-charcoal/70">
-            Seçilen aralık: <strong>{formatDate(range.from)} - {formatDate(range.to)}</strong>
+            Seçilen tarih: <strong>{formatDate(eventDate)}</strong>
           </p>
         )}
         {dateError && <p className="mt-2 text-xs text-red-700">{dateError}</p>}
@@ -214,7 +211,7 @@ export default function ReservationForm({
             3 standart çerçeve tasarımımız ücretsizdir, 2 özel tasarım çerçeve ise ek ücretlidir. Devam etmek
             için bir çerçeve seçmelisiniz.
           </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className={`grid grid-cols-2 gap-3 sm:grid-cols-3 ${frameError ? "rounded-2xl p-2 ring-2 ring-red-400" : ""}`}>
             {frames.map((f) => (
               <button
                 type="button"
@@ -299,6 +296,23 @@ export default function ReservationForm({
                     onChange={() => toggleAddOn(a.id)}
                     className="mt-0.5 h-4 w-4 accent-burgundy"
                   />
+                  {a.imageUrl && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setLightboxImage(a.imageUrl);
+                      }}
+                      className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-burgundy/15 cursor-zoom-in"
+                      title="Büyütmek için tıklayın"
+                    >
+                      <Image src={a.imageUrl} alt={a.name} fill className="object-cover" sizes="44px" />
+                      <span className="absolute inset-0 flex items-center justify-center bg-charcoal/0 text-transparent hover:bg-charcoal/30 hover:text-white">
+                        <ZoomIn size={14} />
+                      </span>
+                    </button>
+                  )}
                   <span>
                     <span className="block text-sm font-medium text-charcoal">{a.name}</span>
                     {a.description && <span className="block text-xs text-charcoal/60">{a.description}</span>}
@@ -325,6 +339,23 @@ export default function ReservationForm({
                     onChange={() => toggleAddOn(a.id)}
                     className="mt-0.5 h-4 w-4 accent-burgundy"
                   />
+                  {a.imageUrl && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setLightboxImage(a.imageUrl);
+                      }}
+                      className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-burgundy/15 cursor-zoom-in"
+                      title="Büyütmek için tıklayın"
+                    >
+                      <Image src={a.imageUrl} alt={a.name} fill className="object-cover" sizes="44px" />
+                      <span className="absolute inset-0 flex items-center justify-center bg-charcoal/0 text-transparent hover:bg-charcoal/30 hover:text-white">
+                        <ZoomIn size={14} />
+                      </span>
+                    </button>
+                  )}
                   <span>
                     <span className="block text-sm font-medium text-charcoal">{a.name}</span>
                     {a.description && <span className="block text-xs text-charcoal/60">{a.description}</span>}
@@ -437,5 +468,13 @@ export default function ReservationForm({
         {submitting ? "Gönderiliyor..." : `${productName} için Rezervasyon Yap`}
       </Button>
     </form>
+    <Modal open={!!lightboxImage} onClose={() => setLightboxImage(null)}>
+      {lightboxImage && (
+        <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-rose-pale">
+          <Image src={lightboxImage} alt="" fill className="object-contain" sizes="500px" />
+        </div>
+      )}
+    </Modal>
+    </>
   );
 }

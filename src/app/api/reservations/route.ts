@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { addDays, startOfDay } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import { reservationSchema } from "@/lib/validations/reservation";
-import { getReservedQuantity } from "@/lib/availability";
+import { getReservedQuantity, isDateBlocked } from "@/lib/availability";
 import { expireStalePendingReservations } from "@/lib/payments";
 import { computeDiscountAmount } from "@/lib/discountCodes";
 import { slugify } from "@/lib/format";
@@ -22,6 +23,9 @@ export async function POST(request: NextRequest) {
   }
 
   const data = parsed.data;
+  const eventDate = startOfDay(data.eventDate);
+  const rentalStart = eventDate;
+  const rentalEnd = addDays(eventDate, 1);
 
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -32,7 +36,11 @@ export async function POST(request: NextRequest) {
         throw new Error("PRODUCT_NOT_FOUND");
       }
 
-      const reserved = await getReservedQuantity(data.productId, data.rentalStart, data.rentalEnd, undefined, tx);
+      if (await isDateBlocked(data.productId, eventDate, tx)) {
+        throw new Error("DATE_BLOCKED");
+      }
+
+      const reserved = await getReservedQuantity(data.productId, rentalStart, rentalEnd, undefined, tx);
       if (product.stockCount - reserved < 1) {
         throw new Error("NOT_AVAILABLE");
       }
@@ -80,8 +88,9 @@ export async function POST(request: NextRequest) {
           customerEmail: data.customerEmail || null,
           eventCity: data.eventCity || null,
           deliveryAddress: data.deliveryAddress || null,
-          rentalStart: data.rentalStart,
-          rentalEnd: data.rentalEnd,
+          eventDate,
+          rentalStart,
+          rentalEnd,
           note: data.note || null,
           frameId: frame?.id ?? null,
           framePriceAtBooking: frame?.price ?? null,
@@ -103,7 +112,13 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     if (err instanceof Error && err.message === "NOT_AVAILABLE") {
       return NextResponse.json(
-        { error: "Seçtiğiniz tarihlerde bu ürün müsait değil." },
+        { error: "Seçtiğiniz tarihte bu ürün müsait değil." },
+        { status: 409 }
+      );
+    }
+    if (err instanceof Error && err.message === "DATE_BLOCKED") {
+      return NextResponse.json(
+        { error: "Seçtiğiniz tarih rezervasyona kapalıdır." },
         { status: 409 }
       );
     }

@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
       price: parsed.data.price,
       category: parsed.data.category,
       cityRestriction: parsed.data.cityRestriction || null,
+      imageUrl: parsed.data.imageUrl || null,
       isActive: parsed.data.isActive ?? true,
       order: parsed.data.order ?? 0,
     },

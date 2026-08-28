@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, Loader2, Wallet, Send, Copy, Check, Truck } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { StatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
-import { formatDateRange, formatPrice } from "@/lib/format";
+import { formatDate, formatPrice } from "@/lib/format";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
 
 function formatDateInput(d: Date | string | null | undefined) {
@@ -113,6 +113,7 @@ type ReservationWithProduct = {
   eventCity: string | null;
   deliveryAddress: string | null;
   note: string | null;
+  eventDate: Date | null;
   rentalStart: Date;
   rentalEnd: Date;
   status: string;
@@ -243,7 +244,7 @@ export default function ReservationsTable({
             <tr className="border-b border-burgundy/10 text-xs uppercase tracking-wide text-charcoal/50">
               <th className="px-5 py-3">Müşteri</th>
               <th className="px-5 py-3">Ürün</th>
-              <th className="px-5 py-3">Tarih Aralığı</th>
+              <th className="px-5 py-3">Etkinlik Tarihi</th>
               <th className="px-5 py-3">Durum</th>
               <th className="px-5 py-3">Ödeme</th>
               <th className="px-5 py-3 text-right">İşlemler</th>
@@ -265,7 +266,7 @@ export default function ReservationsTable({
                 >
                   <td className="px-5 py-3 font-medium text-burgundy-dark">{r.customerName}</td>
                   <td className="px-5 py-3 text-charcoal/70">{r.product.name}</td>
-                  <td className="px-5 py-3 text-charcoal/70">{formatDateRange(r.rentalStart, r.rentalEnd)}</td>
+                  <td className="px-5 py-3 text-charcoal/70">{formatDate(r.eventDate ?? r.rentalStart)}</td>
                   <td className="px-5 py-3">
                     <StatusBadge status={r.status} />
                   </td>

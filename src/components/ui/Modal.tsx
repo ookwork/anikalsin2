@@ -26,7 +26,7 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       <div className="relative w-full max-w-md rounded-2xl bg-ivory p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           {title && <h3 className="text-lg font-semibold text-burgundy-dark">{title}</h3>}
-          <button onClick={onClose} className="ml-auto rounded-full p-1 text-charcoal/50 hover:bg-cream cursor-pointer">
+          <button type="button" onClick={onClose} className="ml-auto rounded-full p-1 text-charcoal/50 hover:bg-cream cursor-pointer">
             <X size={18} />
           </button>
         </div>

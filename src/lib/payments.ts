@@ -1,3 +1,4 @@
+import { addDays, startOfDay } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 
@@ -16,10 +17,23 @@ export async function expireStalePendingReservations(client: DbClient = prisma) 
   const reservationIds = stale.map((p) => p.reservationId);
   const paymentIds = stale.map((p) => p.id);
 
-  await client.reservation.updateMany({
+  const reservations = await client.reservation.findMany({
     where: { id: { in: reservationIds }, status: { in: ["PENDING", "CONFIRMED"] } },
-    data: { status: "EXPIRED" },
+    select: { id: true, eventDate: true, rentalStart: true },
   });
+
+  // Süresi dolan rezervasyon daha önce onaylanmış olsa bile, artık ±4 günlük tampon bloklamasın diye
+  // takvim penceresi tekrar tek güne daraltılır.
+  await Promise.all(
+    reservations.map((r) => {
+      const base = startOfDay(r.eventDate ?? r.rentalStart);
+      return client.reservation.update({
+        where: { id: r.id },
+        data: { status: "EXPIRED", rentalStart: base, rentalEnd: addDays(base, 1) },
+      });
+    })
+  );
+
   await client.payment.updateMany({
     where: { id: { in: paymentIds }, status: "PENDING" },
     data: { status: "EXPIRED" },

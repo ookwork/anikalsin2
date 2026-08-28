@@ -26,6 +26,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
         ...(parsed.data.price !== undefined && { price: parsed.data.price }),
         ...(parsed.data.category !== undefined && { category: parsed.data.category }),
         ...(parsed.data.cityRestriction !== undefined && { cityRestriction: parsed.data.cityRestriction || null }),
+        ...(parsed.data.imageUrl !== undefined && { imageUrl: parsed.data.imageUrl || null }),
         ...(parsed.data.isActive !== undefined && { isActive: parsed.data.isActive }),
         ...(parsed.data.order !== undefined && { order: parsed.data.order }),
       },

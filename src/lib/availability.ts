@@ -41,6 +41,14 @@ export async function checkAvailability(
   return { available: remaining >= requestedQty, remaining, product };
 }
 
+/** İlgili ürüne uygulanan (ürüne özel veya tüm ürünler için geçerli) admin tarafından kapatılmış günleri döndürür. */
+async function getBlockedDateRows(productId: string) {
+  return prisma.blockedDate.findMany({
+    where: { OR: [{ productId }, { productId: null }] },
+    select: { date: true },
+  });
+}
+
 /** Bir ay içindeki her gün için o günün dolu olup olmadığını döndürür (takvimde işaretlemek için). */
 export async function getBookedDateRanges(productId: string) {
   const reservations = await prisma.reservation.findMany({
@@ -53,13 +61,32 @@ export async function getBookedDateRanges(productId: string) {
   const product = await prisma.product.findUnique({ where: { id: productId } });
   if (!product) return [];
 
+  const blockedRows = await getBlockedDateRows(productId);
+  const blockedRanges = blockedRows.map((b) => ({
+    from: b.date,
+    to: new Date(b.date.getTime() + 24 * 60 * 60 * 1000),
+  }));
+
   // Basit yaklaşım: toplam stok tek adetse (en yaygın durum) her rezervasyon aralığı dolu kabul edilir.
   // Stok birden fazlaysa, günlük toplam talep stok sayısına ulaştığında o gün dolu sayılır.
   if (product.stockCount <= 1) {
-    return reservations.map((r) => ({ from: r.rentalStart, to: r.rentalEnd }));
+    return [...reservations.map((r) => ({ from: r.rentalStart, to: r.rentalEnd })), ...blockedRanges];
   }
 
-  return computeFullyBookedRanges(reservations, product.stockCount);
+  return [...computeFullyBookedRanges(reservations, product.stockCount), ...blockedRanges];
+}
+
+/** Bir tarih, admin tarafından ürüne özel veya tüm ürünler için kapatılmış mı? (Gün bazlı, saat bilgisi yok sayılır.) */
+export async function isDateBlocked(productId: string, date: Date, client: DbClient = prisma) {
+  const dayStart = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000);
+  const match = await client.blockedDate.findFirst({
+    where: {
+      OR: [{ productId }, { productId: null }],
+      date: { gte: dayStart, lt: dayEnd },
+    },
+  });
+  return !!match;
 }
 
 function computeFullyBookedRanges(

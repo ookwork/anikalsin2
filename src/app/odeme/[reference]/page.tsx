@@ -4,7 +4,7 @@ import { CheckCircle2, Clock3 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { expireStalePendingReservations } from "@/lib/payments";
 import { getContent } from "@/lib/content";
-import { formatDateRange, formatPrice } from "@/lib/format";
+import { formatDate, formatPrice } from "@/lib/format";
 import { ButtonLink } from "@/components/ui/Button";
 import PaymentClient from "@/components/booking/PaymentClient";
 
@@ -54,7 +54,7 @@ export default async function PaymentPage({ params }: Props) {
         </p>
         <div className="mt-6 rounded-2xl border border-burgundy/10 bg-ivory p-5 text-left text-sm text-charcoal/70">
           <p><strong>Referans Kodu:</strong> {payment.referenceCode}</p>
-          <p className="mt-1"><strong>Tarih:</strong> {formatDateRange(reservation.rentalStart, reservation.rentalEnd)}</p>
+          <p className="mt-1"><strong>Tarih:</strong> {formatDate(reservation.eventDate ?? reservation.rentalStart)}</p>
           <p className="mt-1"><strong>Tutar:</strong> {formatPrice(payment.amount)}</p>
         </div>
         <div className="mt-8">
@@ -101,9 +101,9 @@ export default async function PaymentPage({ params }: Props) {
           <span className="font-medium text-burgundy-dark">{reservation.product.name}</span>
         </div>
         <div className="mt-2 flex items-center justify-between">
-          <span>Tarih Aralığı</span>
+          <span>Etkinlik Tarihi</span>
           <span className="font-medium text-burgundy-dark">
-            {formatDateRange(reservation.rentalStart, reservation.rentalEnd)}
+            {formatDate(reservation.eventDate ?? reservation.rentalStart)}
           </span>
         </div>
         {reservation.frame && (

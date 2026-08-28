@@ -38,10 +38,13 @@ export default async function DashboardPage() {
     }),
     prisma.reservation.findMany({
       where: {
-        rentalStart: { gte: monthStart, lt: monthEnd },
         status: { in: ["PENDING", "CONFIRMED"] },
+        OR: [
+          { eventDate: { gte: monthStart, lt: monthEnd } },
+          { eventDate: null, rentalStart: { gte: monthStart, lt: monthEnd } },
+        ],
       },
-      orderBy: { rentalStart: "asc" },
+      orderBy: { eventDate: "asc" },
       include: { product: { select: { name: true } } },
     }),
     prisma.payment.aggregate({
@@ -196,7 +199,7 @@ export default async function DashboardPage() {
               )}
               {monthReservations.map((r) => (
                 <tr key={r.id} className="border-b border-burgundy/5 last:border-0">
-                  <td className="px-5 py-3 font-medium text-burgundy-dark">{formatDate(r.rentalStart)}</td>
+                  <td className="px-5 py-3 font-medium text-burgundy-dark">{formatDate(r.eventDate ?? r.rentalStart)}</td>
                   <td className="px-5 py-3 text-charcoal/70">{r.customerName}</td>
                   <td className="px-5 py-3 text-charcoal/70">{r.product.name}</td>
                   <td className="px-5 py-3">
@@ -240,7 +243,7 @@ export default async function DashboardPage() {
                 <tr key={r.id} className="border-b border-burgundy/5 last:border-0">
                   <td className="px-5 py-3 font-medium text-burgundy-dark">{r.customerName}</td>
                   <td className="px-5 py-3 text-charcoal/70">{r.product.name}</td>
-                  <td className="px-5 py-3 text-charcoal/70">{formatDate(r.rentalStart)}</td>
+                  <td className="px-5 py-3 text-charcoal/70">{formatDate(r.eventDate ?? r.rentalStart)}</td>
                   <td className="px-5 py-3 text-charcoal/70">{formatPrice(r.product.price)}</td>
                   <td className="px-5 py-3">
                     <StatusBadge status={r.status} />

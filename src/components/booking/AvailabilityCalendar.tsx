@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DayPicker, type DateRange } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 import { tr } from "react-day-picker/locale";
 import "react-day-picker/style.css";
 
@@ -12,8 +12,8 @@ interface BookedRange {
 
 interface AvailabilityCalendarProps {
   productId: string;
-  selected: DateRange | undefined;
-  onSelect: (range: DateRange | undefined) => void;
+  selected: Date | undefined;
+  onSelect: (date: Date | undefined) => void;
 }
 
 export default function AvailabilityCalendar({ productId, selected, onSelect }: AvailabilityCalendarProps) {
@@ -33,14 +33,16 @@ export default function AvailabilityCalendar({ productId, selected, onSelect }: 
 
   const disabled = [
     { before: today },
-    ...bookedRanges.map((r) => ({ from: new Date(r.from), to: new Date(r.to) })),
+    // r.to sunucuda "hariç" (exclusive) uç olarak tutuluyor; DayPicker {from,to} aralığını iki ucu da
+    // dahil (inclusive) yorumladığından, bir sonraki günü yanlışlıkla dolu göstermemek için 1ms geri alınır.
+    ...bookedRanges.map((r) => ({ from: new Date(r.from), to: new Date(new Date(r.to).getTime() - 1) })),
   ];
 
   return (
     <div className="rounded-2xl border border-burgundy/15 bg-ivory p-4">
       {loading && <p className="mb-2 text-xs text-charcoal/50">Müsaitlik bilgisi yükleniyor...</p>}
       <DayPicker
-        mode="range"
+        mode="single"
         locale={tr}
         selected={selected}
         onSelect={onSelect}
@@ -53,7 +55,7 @@ export default function AvailabilityCalendar({ productId, selected, onSelect }: 
           <span className="h-3 w-3 rounded-full bg-burgundy" /> Seçili tarih
         </span>
         <span className="flex items-center gap-1.5">
-          <span className="h-3 w-3 rounded-full bg-charcoal/20 line-through" /> Dolu / geçmiş tarih
+          <span className="h-3 w-3 rounded-full bg-charcoal/20 line-through" /> Dolu / geçmiş / kapalı tarih
         </span>
       </div>
     </div>

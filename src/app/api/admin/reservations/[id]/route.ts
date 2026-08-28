@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { addDays, startOfDay, subDays } from "date-fns";
 import { prisma } from "@/lib/prisma";
 import { reservationStatusUpdateSchema } from "@/lib/validations/reservation";
 import { getReservedQuantity } from "@/lib/availability";
@@ -7,6 +8,7 @@ import { requireAdmin } from "@/lib/auth";
 type Params = { params: Promise<{ id: string }> };
 
 const TERMINAL_STATUSES = new Set(["REJECTED", "CANCELLED", "EXPIRED"]);
+const CONFIRMED_BUFFER_DAYS = 4;
 
 export async function PATCH(request: NextRequest, { params }: Params) {
   const admin = await requireAdmin();
@@ -29,16 +31,19 @@ export async function PATCH(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "Rezervasyon bulunamadı." }, { status: 404 });
   }
 
-  if (parsed.data.status === "CONFIRMED") {
-    const reserved = await getReservedQuantity(
-      reservation.productId,
-      reservation.rentalStart,
-      reservation.rentalEnd,
-      reservation.id
-    );
+  const base = startOfDay(reservation.eventDate ?? reservation.rentalStart);
+  const isConfirming = parsed.data.status === "CONFIRMED";
+  const newRentalStart = isConfirming ? subDays(base, CONFIRMED_BUFFER_DAYS) : base;
+  const newRentalEnd = isConfirming ? addDays(base, CONFIRMED_BUFFER_DAYS + 1) : addDays(base, 1);
+
+  if (isConfirming) {
+    const reserved = await getReservedQuantity(reservation.productId, newRentalStart, newRentalEnd, reservation.id);
     if (reservation.product.stockCount - reserved < reservation.quantity) {
       return NextResponse.json(
-        { error: "Bu tarihte yeterli stok yok, önce çakışan rezervasyonu düzenleyin." },
+        {
+          error:
+            "Bu tarih aralığında (etkinlik tarihi ±4 gün) çakışan başka bir rezervasyon var, önce onu düzenleyin.",
+        },
         { status: 409 }
       );
     }
@@ -49,6 +54,8 @@ export async function PATCH(request: NextRequest, { params }: Params) {
       where: { id },
       data: {
         status: parsed.data.status,
+        rentalStart: newRentalStart,
+        rentalEnd: newRentalEnd,
         ...(parsed.data.adminNote !== undefined && { adminNote: parsed.data.adminNote }),
       },
     });

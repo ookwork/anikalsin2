@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ReservationStatus } from "@/generated/prisma/client";
 import { toCsv } from "@/lib/csv";
-import { formatDateRange, formatPrice } from "@/lib/format";
+import { formatDate, formatPrice } from "@/lib/format";
 import { requireAdmin } from "@/lib/auth";
 
 const VALID_STATUSES = new Set(Object.values(ReservationStatus));
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     Şehir: r.eventCity ?? "",
     "Teslimat Adresi": r.deliveryAddress ?? "",
     Ürün: r.product.name,
-    "Tarih Aralığı": formatDateRange(r.rentalStart, r.rentalEnd),
+    "Etkinlik Tarihi": formatDate(r.eventDate ?? r.rentalStart),
     "Ek Hizmetler": r.addOns.map((a) => a.addOn.name).join("; "),
     Tutar: formatPrice(r.payment?.amount ?? r.product.price),
     "Rezervasyon Durumu": RESERVATION_STATUS_LABELS[r.status] ?? r.status,

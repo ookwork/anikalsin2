@@ -46,7 +46,16 @@ export default function Footer({ phone, email, instagram, cities }: FooterProps)
             <ul className="mt-3 space-y-2 text-sm text-rose-pale/80">
               <li className="flex items-center gap-2"><Phone size={15} /> {phone}</li>
               <li className="flex items-center gap-2"><Mail size={15} /> {email}</li>
-              <li className="flex items-center gap-2"><AtSign size={15} /> {instagram}</li>
+              <li>
+                <a
+                  href={`https://instagram.com/${instagram.replace("@", "")}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border border-on-brand/20 px-3 py-1.5 hover:border-on-brand/50 hover:text-on-brand"
+                >
+                  <AtSign size={15} /> {instagram}
+                </a>
+              </li>
             </ul>
           </div>
         </div>

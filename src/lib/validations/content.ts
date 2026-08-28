@@ -32,6 +32,7 @@ export const addOnSchema = z.object({
   price: z.coerce.number().int().min(0, "Fiyat 0 veya üzeri olmalıdır."),
   category: z.enum(["ACCESSORY", "STAFF_SERVICE"]),
   cityRestriction: z.string().optional().or(z.literal("")),
+  imageUrl: z.string().optional().or(z.literal("")),
   isActive: z.boolean().optional(),
   order: z.coerce.number().int().optional(),
 });

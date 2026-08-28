@@ -19,7 +19,10 @@ export function FieldWrap({ label, error, hint, children }: FieldWrapProps) {
 }
 
 const fieldBase =
-  "w-full rounded-xl border border-burgundy/15 bg-ivory px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/40 focus:border-burgundy focus:outline-none focus:ring-2 focus:ring-burgundy/20 transition";
+  "w-full rounded-xl border bg-ivory px-4 py-2.5 text-sm text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:ring-2 transition";
+
+const fieldValidState = "border-burgundy/15 focus:border-burgundy focus:ring-burgundy/20";
+const fieldErrorState = "border-red-400 focus:border-red-500 focus:ring-red-200";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -30,7 +33,12 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, hint, className = "", ...props }, ref) => (
     <FieldWrap label={label} error={error} hint={hint}>
-      <input ref={ref} className={`${fieldBase} ${className}`} {...props} />
+      <input
+        ref={ref}
+        aria-invalid={!!error}
+        className={`${fieldBase} ${error ? fieldErrorState : fieldValidState} ${className}`}
+        {...props}
+      />
     </FieldWrap>
   )
 );
@@ -45,7 +53,12 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ label, error, hint, className = "", ...props }, ref) => (
     <FieldWrap label={label} error={error} hint={hint}>
-      <textarea ref={ref} className={`${fieldBase} min-h-28 resize-y ${className}`} {...props} />
+      <textarea
+        ref={ref}
+        aria-invalid={!!error}
+        className={`${fieldBase} min-h-28 resize-y ${error ? fieldErrorState : fieldValidState} ${className}`}
+        {...props}
+      />
     </FieldWrap>
   )
 );
