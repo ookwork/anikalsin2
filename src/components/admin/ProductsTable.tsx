@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Pencil, Trash2, Layers } from "lucide-react";
+import { Pencil, Trash2, Layers, BookOpen } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { formatPrice } from "@/lib/format";
 import ConfirmDialog from "@/components/admin/ConfirmDialog";
@@ -89,6 +89,13 @@ function ProductRow({
       </td>
       <td className="px-5 py-3">
         <div className="flex justify-end gap-2">
+          <Link
+            href={`/admin/products/${product.id}/manual`}
+            className="rounded-lg p-2 text-burgundy hover:bg-rose-pale"
+            title="Nasıl Kullanılır Sayfası"
+          >
+            <BookOpen size={16} />
+          </Link>
           <Link href={`/admin/products/${product.id}`} className="rounded-lg p-2 text-burgundy hover:bg-rose-pale">
             <Pencil size={16} />
           </Link>

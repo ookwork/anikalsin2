@@ -48,10 +48,38 @@ model Product {
   order            Int            @default(0)
   images           ProductImage[]
   reservations     Reservation[]
+  manualPage       ManualPage?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
   @@index([modelId])
+}
+
+model ManualPage {
+  id          String            @id @default(cuid())
+  productId   String            @unique
+  product     Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+  isPublished Boolean           @default(false)
+  setupText   String?
+  usageText   String?
+  chargeText  String?
+  careText    String?
+  returnText  String?
+  videoUrl    String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  images      ManualPageImage[]
+}
+
+model ManualPageImage {
+  id           String     @id @default(cuid())
+  manualPageId String
+  manualPage   ManualPage @relation(fields: [manualPageId], references: [id], onDelete: Cascade)
+  url          String
+  altText      String?
+  order        Int        @default(0)
+
+  @@index([manualPageId])
 }
 
 model ProductImage {
@@ -99,12 +127,27 @@ model Reservation {
   createdAt              DateTime          @default(now())
   updatedAt              DateTime          @updatedAt
 
-  payment Payment?
-  addOns  ReservationAddOn[]
+  payment       Payment?
+  addOns        ReservationAddOn[]
+  voiceDelivery VoiceDelivery?
 
   @@index([productId, rentalStart, rentalEnd])
   @@index([frameId])
   @@index([discountCodeId])
+}
+
+model VoiceDelivery {
+  id            String      @id @default(cuid())
+  reservationId String      @unique
+  reservation   Reservation @relation(fields: [reservationId], references: [id], onDelete: Cascade)
+  accessToken   String      @unique
+  passwordHash  String
+  driveUrl      String?
+  message       String?
+  photoUrl      String?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model Frame {

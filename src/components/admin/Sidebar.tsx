@@ -18,6 +18,7 @@ import {
   Landmark,
   Music,
   BarChart3,
+  Headphones,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -26,6 +27,7 @@ const NAV_ITEMS = [
   { href: "/admin/products", label: "Ürünler", icon: Package },
   { href: "/admin/reservations", label: "Rezervasyonlar", icon: CalendarDays },
   { href: "/admin/blocked-dates", label: "Kapalı Tarihler", icon: CalendarOff },
+  { href: "/admin/voice-deliveries", label: "Sesler", icon: Headphones },
   { href: "/admin/revenue", label: "Kazanç", icon: Landmark },
   { href: "/admin/frames", label: "Çerçeveler", icon: FrameIcon },
   { href: "/admin/addons", label: "Ek Hizmetler", icon: Sparkles },

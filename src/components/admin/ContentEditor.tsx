@@ -122,6 +122,16 @@ const GROUPS: ContentGroup[] = [
     ],
   },
   {
+    title: "Ses Teslim Sayfası",
+    fields: [
+      {
+        key: "voiceDelivery.defaultMessage",
+        label: "Varsayılan Mesaj",
+        multiline: true,
+      },
+    ],
+  },
+  {
     title: "SEO Varsayılanları",
     fields: [
       { key: "seo.default.title", label: "Varsayılan Sayfa Başlığı" },

@@ -18,7 +18,9 @@ function run(label, command) {
   }
 }
 
-run("Build (next build)", "npm run build");
+run("Prisma Client üret", "npx prisma generate");
+run("Build (webpack — Next.js 16 varsayılanı Turbopack bu host'ta çalışmıyor)", "npm run build:webpack");
+run("Standalone bundle'a statik/public dosyaları kopyala", "node scripts/copy-standalone-assets.js");
 run("Prisma migrate deploy", "npx prisma migrate deploy");
 run("Admin kullanıcı seed", "npm run db:seed");
 

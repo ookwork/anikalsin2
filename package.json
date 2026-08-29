@@ -12,6 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "migrate:deploy": "prisma migrate deploy",
     "migrate:quiet": "node scripts/migrate-quiet.js",
+    "migrate:lowmem": "(node scripts/apply-migration-lowmem.js) > migrate-log.txt 2>&1; echo TAMAMLANDI, migrate-log.txt dosyasina bakin",
+    "deploy:cpanel": "(node ./node_modules/next/dist/bin/next build --webpack && node scripts/copy-standalone-assets.js) > deploy-log.txt 2>&1; echo TAMAMLANDI, deploy-log.txt dosyasina bakin",
     "diag": "node scripts/diag.js",
     "diag:sharp": "node scripts/diag-sharp.js"
   },

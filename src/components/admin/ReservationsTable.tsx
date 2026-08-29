@@ -1,8 +1,9 @@
 "use client";
 
 import { Fragment, useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Trash2, Loader2, Wallet, Send, Copy, Check, Truck } from "lucide-react";
+import { Trash2, Loader2, Wallet, Send, Copy, Check, Truck, Headphones } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { StatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
 import { formatDate, formatPrice } from "@/lib/format";
@@ -341,6 +342,15 @@ export default function ReservationsTable({
                         )}
                         {r.deliveryAddress && <p className="sm:col-span-2"><strong>Adres:</strong> {r.deliveryAddress}</p>}
                         {r.note && <p className="sm:col-span-2"><strong>Not:</strong> {r.note}</p>}
+                        <p className="sm:col-span-2">
+                          <Link
+                            href={`/admin/voice-deliveries?reservationId=${r.id}`}
+                            className="inline-flex items-center gap-1.5 font-medium text-burgundy hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Headphones size={14} /> Sesleri Gönder
+                          </Link>
+                        </p>
                         <ShippingEditor reservation={r} onSaved={() => router.refresh()} />
                       </div>
                     </td>
