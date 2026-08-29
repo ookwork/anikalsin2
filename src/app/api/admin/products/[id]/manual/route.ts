@@ -12,10 +12,7 @@ export async function GET(_request: NextRequest, { params }: Params) {
   }
 
   const { id } = await params;
-  const manualPage = await prisma.manualPage.findUnique({
-    where: { productId: id },
-    include: { images: { orderBy: { order: "asc" } } },
-  });
+  const manualPage = await prisma.manualPage.findUnique({ where: { productId: id } });
   return NextResponse.json({ manualPage });
 }
 
@@ -39,19 +36,14 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
   const data = {
     isPublished: parsed.data.isPublished ?? false,
-    setupText: parsed.data.setupText || null,
-    usageText: parsed.data.usageText || null,
-    chargeText: parsed.data.chargeText || null,
-    careText: parsed.data.careText || null,
-    returnText: parsed.data.returnText || null,
-    videoUrl: parsed.data.videoUrl || null,
+    coverImage: parsed.data.coverImage || null,
+    content: parsed.data.content || null,
   };
 
   const manualPage = await prisma.manualPage.upsert({
     where: { productId: id },
     update: data,
     create: { productId: id, ...data },
-    include: { images: { orderBy: { order: "asc" } } },
   });
 
   return NextResponse.json({ manualPage });

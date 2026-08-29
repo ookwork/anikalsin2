@@ -3,7 +3,6 @@ import Link from "next/link";
 import { ExternalLink } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import ManualPageForm from "@/components/admin/ManualPageForm";
-import ManualPageGalleryManager from "@/components/admin/ManualPageGalleryManager";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -14,10 +13,7 @@ export default async function ProductManualPage({ params }: Props) {
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) notFound();
 
-  const manualPage = await prisma.manualPage.findUnique({
-    where: { productId: id },
-    include: { images: { orderBy: { order: "asc" } } },
-  });
+  const manualPage = await prisma.manualPage.findUnique({ where: { productId: id } });
 
   return (
     <div>
@@ -40,10 +36,6 @@ export default async function ProductManualPage({ params }: Props) {
 
       <div className="mt-6">
         <ManualPageForm productId={product.id} initial={manualPage} />
-      </div>
-
-      <div className="mt-6 max-w-2xl">
-        <ManualPageGalleryManager productId={product.id} images={manualPage?.images ?? []} />
       </div>
     </div>
   );

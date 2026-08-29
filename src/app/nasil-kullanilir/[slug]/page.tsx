@@ -25,13 +25,17 @@ export default async function ManualPagePublic({ params }: Props) {
   const product = await prisma.product.findUnique({ where: { slug } });
   if (!product) notFound();
 
-  const manualPage = await prisma.manualPage.findUnique({
-    where: { productId: product.id },
-    include: { images: { orderBy: { order: "asc" } } },
-  });
+  const manualPage = await prisma.manualPage.findUnique({ where: { productId: product.id } });
   if (!manualPage || !manualPage.isPublished) notFound();
 
   const phone = await getContent("contact.phone", "0850 000 00 00");
 
-  return <ManualPageView productName={product.name} manualPage={manualPage} phone={phone} />;
+  return (
+    <ManualPageView
+      productName={product.name}
+      coverImage={manualPage.coverImage}
+      content={manualPage.content}
+      phone={phone}
+    />
+  );
 }

@@ -56,30 +56,14 @@ model Product {
 }
 
 model ManualPage {
-  id          String            @id @default(cuid())
-  productId   String            @unique
-  product     Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
-  isPublished Boolean           @default(false)
-  setupText   String?
-  usageText   String?
-  chargeText  String?
-  careText    String?
-  returnText  String?
-  videoUrl    String?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  images      ManualPageImage[]
-}
-
-model ManualPageImage {
-  id           String     @id @default(cuid())
-  manualPageId String
-  manualPage   ManualPage @relation(fields: [manualPageId], references: [id], onDelete: Cascade)
-  url          String
-  altText      String?
-  order        Int        @default(0)
-
-  @@index([manualPageId])
+  id          String   @id @default(cuid())
+  productId   String   @unique
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  isPublished Boolean  @default(false)
+  coverImage  String?
+  content     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model ProductImage {
